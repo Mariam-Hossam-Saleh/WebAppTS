@@ -1,14 +1,12 @@
 {
-  "name": "webappts-backend",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "Backend for Todo App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "mongoose": "^8.18.3"
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0"
   }
 }

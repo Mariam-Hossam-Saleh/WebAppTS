@@ -1,3 +1,4 @@
 {
-  "root": "Backend"
+  "root": "Backend",
+  "start": "npm start"
 }
