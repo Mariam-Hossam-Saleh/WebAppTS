@@ -4,7 +4,7 @@
   "description": "Backend for Todo App",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node Backend/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
