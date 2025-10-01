@@ -1,23 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simple To-Do</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>Todo App</title>
 </head>
 <body>
-  <main class="container">
-    <h1>To-Do</h1>
+  <h1>My Todos</h1>
+  <input id="todoInput" placeholder="Enter todo" />
+  <button onclick="addTodo()">Add</button>
+  <ul id="todoList"></ul>
 
-    <form id="todo-form">
-      <input id="todo-input" placeholder="Add a task..." autocomplete="off" required />
-      <button type="submit">Add</button>
-    </form>
+  <script>
+    const API_URL = "http://localhost:4000/todos"; // change later to deployed URL
 
-    <ul id="todo-list" aria-live="polite"></ul>
-  </main>
+    // Fetch todos from backend
+    async function loadTodos() {
+      const res = await fetch(API_URL);
+      const todos = await res.json();
+      const list = document.getElementById("todoList");
+      list.innerHTML = "";
+      todos.forEach(todo => {
+        const li = document.createElement("li");
+        li.textContent = todo.text + (todo.done ? " ✅" : "");
+        li.onclick = () => toggleTodo(todo._id, !todo.done);
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteTodo(todo._id);
+        };
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
 
-  <script src="app.js"></script>
+    // Add new todo
+    async function addTodo() {
+      const input = document.getElementById("todoInput");
+      const text = input.value.trim();
+      if (!text) return;
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      input.value = "";
+      loadTodos();
+    }
+
+    // Toggle todo
+    async function toggleTodo(id, done) {
+      await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ done })
+      });
+      loadTodos();
+    }
+
+    // Delete todo
+    async function deleteTodo(id) {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      loadTodos();
+    }
+
+    // Initial load
+    loadTodos();
+  </script>
 </body>
 </html>
