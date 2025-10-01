@@ -1,0 +1,11 @@
+:root { --max: 700px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:#f3f4f6; }
+.container { width:90%; max-width:var(--max); background:white; padding:1.4rem; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
+h1 { margin:0 0 1rem 0; font-size:1.6rem; }
+form { display:flex; gap:0.5rem; margin-bottom:1rem; }
+input[type="text"], input[type="search"], #todo-input { flex:1; padding:0.6rem; border:1px solid #ddd; border-radius:6px; }
+button { padding:0.55rem 0.8rem; border:0; border-radius:6px; cursor:pointer; }
+#todo-list { list-style:none; padding:0; margin:0; }
+#todo-list li { display:flex; align-items:center; gap:0.6rem; padding:0.5rem; border-bottom:1px solid #f0f0f0; }
+#todo-list li.done span { text-decoration:line-through; opacity:0.6; }
+button.delete { background:transparent; font-size:1rem; padding:0 0.4rem; }
