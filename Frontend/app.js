@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:4000/todos"; // later replace with your deployed backend URL
+const API_URL = "https://webappts-production.up.railway.app/todos"; // deployed backend URL
 
 // Load todos
 async function loadTodos() {
