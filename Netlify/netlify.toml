@@ -1,0 +1,10 @@
+# Netlify deployment configuration
+[build]
+  # No build process needed for static files
+  publish = "."
+
+# Redirect all 404s to index.html for SPA behavior (optional)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
