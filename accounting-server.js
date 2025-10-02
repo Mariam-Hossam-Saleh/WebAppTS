@@ -85,6 +85,15 @@ const requireRole = (roles) => {
 };
 
 // AUTH ROUTES
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Accounting Server is running',
+    timestamp: new Date().toISOString() 
+  });
+});
+
 // Register new user (Admin only)
 app.post("/api/auth/register", authenticateToken, requireRole(['Admin']), async (req, res) => {
   try {
@@ -268,6 +277,6 @@ async function createDefaultAdmin() {
 createDefaultAdmin();
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Accounting Server running on port ${PORT}`);
 });
