@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000'
-    : 'https://webappts-production.up.railway.app';  // Your actual Railway URL
+    : 'https://webappts-production.up.railway.app';  // Your Railway URL (no port needed)
 
   // Set up axios defaults
   axios.defaults.baseURL = API_URL;

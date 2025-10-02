@@ -85,6 +85,30 @@ const requireRole = (roles) => {
 };
 
 // AUTH ROUTES
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Business Accounting Software API',
+    status: 'running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      auth: {
+        login: 'POST /api/auth/login',
+        register: 'POST /api/auth/register',
+        me: 'GET /api/auth/me'
+      },
+      records: {
+        getAll: 'GET /api/records',
+        create: 'POST /api/records',
+        update: 'PATCH /api/records/:id',
+        delete: 'DELETE /api/records/:id'
+      },
+      users: 'GET /api/users'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
