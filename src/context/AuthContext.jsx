@@ -16,8 +16,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000'
-    : 'https://webappts-production.up.railway.app';  // Your Railway URL (no port needed)
+    ? 'http://localhost:5000'  // Local development
+    : 'https://webappts-production.up.railway.app';  // Production backend
+
+  console.log('Current hostname:', window.location.hostname);
+  console.log('Using API URL:', API_URL);
 
   // Set up axios defaults
   axios.defaults.baseURL = API_URL;
@@ -34,7 +37,9 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async () => {
     try {
+      console.log('Verifying token with API URL:', API_URL);
       const response = await axios.get('/api/auth/me');
+      console.log('Token verification successful:', response.data);
       setUser(response.data);
     } catch (error) {
       console.error('Token verification failed:', error);
