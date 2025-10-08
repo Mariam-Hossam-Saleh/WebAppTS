@@ -99,7 +99,7 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
   return (
     <div className="accounting-form">
       <div className="form-header">
-        <h2>{record ? 'Edit Record' : 'Add New Record'}</h2>
+        <h2>{record ? 'تعديل السجل' : 'إضافة سجل جديد'}</h2>
         <button className="close-btn" onClick={onCancel}>
           <X />
         </button>
@@ -115,7 +115,7 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
         <div className="form-grid">
           {/* Row 1 */}
           <div className="form-group">
-            <label htmlFor="fs">FS</label>
+            <label htmlFor="fs">القوائم المالية</label>
             <input
               type="text"
               id="fs"
@@ -126,24 +126,24 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="accountType">Account Type</label>
+            <label htmlFor="accountType">نوع الحساب</label>
             <select
               id="accountType"
               name="accountType"
               value={formData.accountType}
               onChange={handleChange}
             >
-              <option value="">Select Type</option>
-              <option value="Asset">Asset</option>
-              <option value="Liability">Liability</option>
-              <option value="Equity">Equity</option>
-              <option value="Revenue">Revenue</option>
-              <option value="Expense">Expense</option>
+              <option value="">اختر النوع</option>
+              <option value="Asset">أصول</option>
+              <option value="Liability">خصوم</option>
+              <option value="Equity">حقوق الملكية</option>
+              <option value="Revenue">إيرادات</option>
+              <option value="Expense">مصروفات</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="subAccount">Sub Account</label>
+            <label htmlFor="subAccount">الحساب الفرعي</label>
             <input
               type="text"
               id="subAccount"
@@ -155,7 +155,7 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
 
           {/* Row 2 */}
           <div className="form-group">
-            <label htmlFor="date">Date *</label>
+            <label htmlFor="date">التاريخ *</label>
             <input
               type="date"
               id="date"
@@ -167,7 +167,7 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="accountName">Account Name *</label>
+            <label htmlFor="accountName">اسم الحساب *</label>
             <input
               type="text"
               id="accountName"
@@ -179,7 +179,7 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="projectsUnderConstruction">Projects Under Construction</label>
+            <label htmlFor="projectsUnderConstruction">مشاريع تحت الإنشاء</label>
             <input
               type="text"
               id="projectsUnderConstruction"
@@ -331,11 +331,11 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
 
         <div className="form-actions">
           <button type="button" className="btn-secondary" onClick={onCancel}>
-            Cancel
+            إلغاء
           </button>
           <button type="submit" className="btn-primary" disabled={loading}>
             <Save />
-            {loading ? 'Saving...' : (record ? 'Update Record' : 'Save Record')}
+            {loading ? 'جاري الحفظ...' : (record ? 'تحديث السجل' : 'حفظ السجل')}
           </button>
         </div>
       </form>

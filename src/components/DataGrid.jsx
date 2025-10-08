@@ -59,7 +59,7 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
     return (
       <div className="data-grid-loading">
         <div className="loading-spinner"></div>
-        <p>Loading records...</p>
+        <p>جاري تحميل السجلات...</p>
       </div>
     );
   }
@@ -68,11 +68,11 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
     <div className="data-grid">
       <div className="data-grid-header">
         <div className="grid-controls">
-          <h3>Accounting Records</h3>
+          <h3>سجلات المحاسبة</h3>
           <div className="filter-section">
             <input
               type="text"
-              placeholder="Search records..."
+              placeholder="بحث في السجلات..."
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               className="filter-input"
@@ -83,12 +83,12 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
         <div className="grid-stats">
           <div className="stat-item">
             <Package className="stat-icon" />
-            <span>{filteredAndSortedRecords.length} Records</span>
+            <span>{filteredAndSortedRecords.length} سجل</span>
           </div>
           <div className="stat-item">
             <DollarSign className="stat-icon" />
             <span>
-              Total Value: {formatCurrency(
+              إجمالي القيمة: {formatCurrency(
                 filteredAndSortedRecords.reduce((sum, record) => sum + calculateTotal(record), 0)
               )}
             </span>
@@ -102,38 +102,38 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
             <tr>
               <th onClick={() => handleSort('date')} className="sortable">
                 <Calendar className="header-icon" />
-                Date {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
+                التاريخ {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('accountName')} className="sortable">
-                Account Name {sortField === 'accountName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                اسم الحساب {sortField === 'accountName' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('item')} className="sortable">
-                Item {sortField === 'item' && (sortDirection === 'asc' ? '↑' : '↓')}
+                البند {sortField === 'item' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('quantity')} className="sortable">
-                Quantity {sortField === 'quantity' && (sortDirection === 'asc' ? '↑' : '↓')}
+                الكمية {sortField === 'quantity' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('price')} className="sortable">
-                Price {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
+                السعر {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Total</th>
+              <th>الإجمالي</th>
               <th onClick={() => handleSort('brand')} className="sortable">
-                Brand {sortField === 'brand' && (sortDirection === 'asc' ? '↑' : '↓')}
+                العلامة التجارية {sortField === 'brand' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('type')} className="sortable">
-                Type {sortField === 'type' && (sortDirection === 'asc' ? '↑' : '↓')}
+                النوع {sortField === 'type' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('editorName')} className="sortable">
-                Editor {sortField === 'editorName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                المحرر {sortField === 'editorName' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Actions</th>
+              <th>الإجراءات</th>
             </tr>
           </thead>
           <tbody>
             {filteredAndSortedRecords.length === 0 ? (
               <tr>
                 <td colSpan="10" className="no-data">
-                  {filterText ? 'No records match your search.' : 'No records found. Click "Add New Record" to get started.'}
+                  {filterText ? 'لا توجد سجلات مطابقة لبحثك.' : 'لم يتم العثور على سجلات. انقر "إضافة سجل جديد" للبدء.'}
                 </td>
               </tr>
             ) : (

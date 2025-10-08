@@ -82,7 +82,7 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <div className="header-left">
           <BarChart3 className="logo-icon" />
-          <h1>Business Accounting Software</h1>
+          <h1>Traffic Solution Accounts</h1>
         </div>
         
         <div className="header-center">
@@ -96,30 +96,30 @@ const Dashboard = () => {
           <button 
             className="header-btn"
             onClick={() => setShowUserSwitcher(true)}
-            title="Switch User"
+            title="تبديل المستخدم"
           >
             <Users />
-            Switch User
+            تبديل المستخدم
           </button>
           
           {user.role === 'Admin' && (
             <button 
               className="header-btn"
               onClick={() => setShowUserManager(true)}
-              title="Manage Users"
+              title="إدارة المستخدمين"
             >
               <Settings />
-              Manage Users
+              إدارة المستخدمين
             </button>
           )}
           
           <button 
             className="header-btn logout-btn"
             onClick={logout}
-            title="Logout"
+            title="تسجيل الخروج"
           >
             <LogOut />
-            Logout
+            تسجيل الخروج
           </button>
         </div>
       </header>
@@ -134,7 +134,7 @@ const Dashboard = () => {
               onClick={handleNewRecord}
             >
               <Plus />
-              Add New Record
+              إضافة سجل جديد
             </button>
             
             <button 
@@ -143,13 +143,13 @@ const Dashboard = () => {
               disabled={loading}
             >
               <RefreshCw className={loading ? 'spinning' : ''} />
-              Refresh
+              تحديث
             </button>
           </div>
           
           <div className="action-right">
             <span className="record-count">
-              Total Records: {records.length}
+              إجمالي السجلات: {records.length}
             </span>
           </div>
         </div>

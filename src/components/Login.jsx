@@ -38,15 +38,15 @@ const Login = () => {
       <div className="login-box">
         <div className="login-header">
           <LogIn className="login-icon" />
-          <h1>Business Accounting Software</h1>
-          <p>Sign in to your account</p>
+          <h1>Traffic Solution Accounts</h1>
+          <p>تسجيل الدخول إلى حسابك</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="username">
               <User className="input-icon" />
-              Username
+              اسم المستخدم
             </label>
             <input
               type="text"
@@ -55,14 +55,14 @@ const Login = () => {
               value={formData.username}
               onChange={handleChange}
               required
-              placeholder="Enter your username"
+              placeholder="أدخل اسم المستخدم"
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="password">
               <Lock className="input-icon" />
-              Password
+              كلمة المرور
             </label>
             <input
               type="password"
@@ -71,7 +71,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter your password"
+              placeholder="أدخل كلمة المرور"
             />
           </div>
 
@@ -86,12 +86,12 @@ const Login = () => {
             className="login-button"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
         </form>
 
         <div className="login-footer">
-          <p>Default Admin: username: <code>admin</code>, password: <code>admin123</code></p>
+          <p>مشرف افتراضي: اسم المستخدم: <code>admin</code>، كلمة المرور: <code>admin123</code></p>
         </div>
       </div>
     </div>

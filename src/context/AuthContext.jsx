@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Login failed:', error);
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+        message: error.response?.data?.message || 'فشل تسجيل الدخول' 
       };
     }
   };
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
       console.error('User switch failed:', error);
       return { 
         success: false, 
-        message: error.response?.data?.message || 'User switch failed' 
+        message: error.response?.data?.message || 'فشل تبديل المستخدم' 
       };
     }
   };
@@ -104,12 +104,12 @@ export const AuthProvider = ({ children }) => {
   const registerUser = async (userData) => {
     try {
       const response = await axios.post('/api/auth/register', userData);
-      return { success: true, message: 'User created successfully' };
+      return { success: true, message: 'تم إنشاء المستخدم بنجاح' };
     } catch (error) {
       console.error('Registration failed:', error);
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+        message: error.response?.data?.message || 'فشل التسجيل' 
       };
     }
   };

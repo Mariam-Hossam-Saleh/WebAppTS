@@ -40,7 +40,7 @@ const UserSwitcher = ({ onClose }) => {
       <div className="modal-header">
         <div className="modal-title">
           <Users className="title-icon" />
-          <h2>Switch User</h2>
+          <h2>تبديل المستخدم</h2>
         </div>
         <button className="close-btn" onClick={onClose}>
           <X />
@@ -49,13 +49,13 @@ const UserSwitcher = ({ onClose }) => {
 
       <form onSubmit={handleSubmit} className="switcher-form">
         <p className="form-description">
-          Enter credentials to switch to a different user account.
+          أدخل بيانات الاعتماد للتبديل إلى حساب مستخدم آخر.
         </p>
 
         <div className="form-group">
           <label htmlFor="switch-username">
             <User className="input-icon" />
-            Username
+            اسم المستخدم
           </label>
           <input
             type="text"
@@ -64,14 +64,14 @@ const UserSwitcher = ({ onClose }) => {
             value={formData.username}
             onChange={handleChange}
             required
-            placeholder="Enter username"
+            placeholder="أدخل اسم المستخدم"
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="switch-password">
             <Lock className="input-icon" />
-            Password
+            كلمة المرور
           </label>
           <input
             type="password"
@@ -80,7 +80,7 @@ const UserSwitcher = ({ onClose }) => {
             value={formData.password}
             onChange={handleChange}
             required
-            placeholder="Enter password"
+            placeholder="أدخل كلمة المرور"
           />
         </div>
 
@@ -92,10 +92,10 @@ const UserSwitcher = ({ onClose }) => {
 
         <div className="form-actions">
           <button type="button" className="btn-secondary" onClick={onClose}>
-            Cancel
+            إلغاء
           </button>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Switching...' : 'Switch User'}
+            {loading ? 'جاري التبديل...' : 'تبديل المستخدم'}
           </button>
         </div>
       </form>
