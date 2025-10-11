@@ -16,6 +16,8 @@ const UserManager = ({ onClose }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const [showPasswords, setShowPasswords] = useState({});
+
   const { registerUser } = useAuth();
 
   useEffect(() => {
@@ -108,6 +110,17 @@ const UserManager = ({ onClose }) => {
     setFormData({ username: '', password: '', role: 'Accountant' });
     setError('');
     setShowPassword(false);
+  };
+
+  const togglePasswordVisibility = (userId) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
+
+  const maskPassword = (password) => {
+    return '*'.repeat(password.length);
   };
 
   return (
@@ -226,6 +239,7 @@ const UserManager = ({ onClose }) => {
                 <thead>
                   <tr>
                     <th>اسم المستخدم</th>
+                    <th>كلمة المرور</th>
                     <th>الدور</th>
                     <th>تاريخ الإنشاء</th>
                     <th>الإجراءات</th>
@@ -238,6 +252,20 @@ const UserManager = ({ onClose }) => {
                         <div className="user-name">
                           {getRoleIcon(user.role)}
                           {user.username}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="password-display">
+                          <span className="password-text">
+                            {showPasswords[user._id] ? user.plainPassword || '••••••••' : '••••••••'}
+                          </span>
+                          <button 
+                            className="password-toggle-btn"
+                            onClick={() => togglePasswordVisibility(user._id)}
+                            title={showPasswords[user._id] ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                          >
+                            {showPasswords[user._id] ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
                         </div>
                       </td>
                       <td>

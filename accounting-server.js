@@ -23,6 +23,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/accounting-
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  plainPassword: { type: String, required: true }, // For admin viewing
   role: { type: String, enum: ['Admin', 'Accountant'], required: true },
   createdAt: { type: Date, default: Date.now }
 });
@@ -194,6 +195,7 @@ app.post("/api/auth/register", authenticateToken, requireRole(['Admin']), async 
     const user = new User({
       username,
       password: hashedPassword,
+      plainPassword: password, // Store plain password for admin viewing
       role
     });
 
@@ -632,7 +634,7 @@ app.delete("/api/records/:id", authenticateToken, requireRole(['Admin']), async 
 // Get all users
 app.get("/api/users", authenticateToken, requireRole(['Admin']), async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find(); // Include passwords for admin view
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
@@ -648,13 +650,14 @@ app.patch("/api/users/:id", authenticateToken, requireRole(['Admin']), async (re
     if (updateData.password) {
       const saltRounds = 10;
       updateData.password = await bcrypt.hash(updateData.password, saltRounds);
+      updateData.plainPassword = req.body.password; // Store plain password for admin viewing
     }
     
     const user = await User.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true }
-    ).select('-password');
+    );
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -688,6 +691,7 @@ async function createDefaultAdmin() {
       const admin = new User({
         username: 'admin',
         password: hashedPassword,
+        plainPassword: 'admin123', // Store plain password for admin viewing
         role: 'Admin'
       });
       await admin.save();
