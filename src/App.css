@@ -562,6 +562,9 @@ body {
 
 .data-grid-table-container {
   overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+  position: relative;
 }
 
 .data-grid-table {
@@ -573,17 +576,22 @@ body {
 .data-grid-table th {
   background: #f8fafc;
   padding: 1rem;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   color: #374151;
   border-bottom: 1px solid #e5e7eb;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
 .data-grid-table th.sortable {
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s ease;
+  text-align: center;
 }
 
 .data-grid-table th.sortable:hover {
