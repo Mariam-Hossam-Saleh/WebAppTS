@@ -51,6 +51,15 @@ const employeeSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Project under Construction Schema (Admin-controlled list)
+const projectSchema = new mongoose.Schema({
+  projectName: { type: String, required: true, unique: true },
+  code: { type: String, required: true, unique: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Simplified Accounting Record Schema
 const accountingSchema = new mongoose.Schema({
   date: { type: Date, required: true },
@@ -91,6 +100,7 @@ const accountingSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const Account = mongoose.model("Account", accountSchema);
 const Employee = mongoose.model("Employee", employeeSchema);
+const Project = mongoose.model("Project", projectSchema);
 const AccountingRecord = mongoose.model("AccountingRecord", accountingSchema);
 
 // Middleware for JWT verification
@@ -251,6 +261,16 @@ app.get("/api/employees", authenticateToken, async (req, res) => {
   }
 });
 
+// Get all projects (for dropdowns)
+app.get("/api/projects", authenticateToken, async (req, res) => {
+  try {
+    const projects = await Project.find().sort({ projectName: 1 });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching projects', error: error.message });
+  }
+});
+
 // ACCOUNT MANAGEMENT (Admin only)
 // Create account
 app.post("/api/accounts", authenticateToken, requireRole(['Admin']), async (req, res) => {
@@ -338,6 +358,51 @@ app.delete("/api/employees/:id", authenticateToken, requireRole(['Admin']), asyn
     res.json({ message: 'Employee deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting employee', error: error.message });
+  }
+});
+
+// PROJECT MANAGEMENT (Admin only)
+// Create project
+app.post("/api/projects", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const project = new Project({
+      ...req.body,
+      createdBy: req.user._id
+    });
+    await project.save();
+    res.status(201).json(project);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating project', error: error.message });
+  }
+});
+
+// Update project
+app.patch("/api/projects/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating project', error: error.message });
+  }
+});
+
+// Delete project
+app.delete("/api/projects/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const project = await Project.findByIdAndDelete(req.params.id);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting project', error: error.message });
   }
 });
 
@@ -506,6 +571,46 @@ app.get("/api/users", authenticateToken, requireRole(['Admin']), async (req, res
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+});
+
+// Update user (Admin only)
+app.patch("/api/users/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const updateData = { ...req.body };
+    
+    // Hash password if it's being updated
+    if (updateData.password) {
+      const saltRounds = 10;
+      updateData.password = await bcrypt.hash(updateData.password, saltRounds);
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error: error.message });
+  }
+});
+
+// Delete user (Admin only)
+app.delete("/api/users/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
   }
 });
 

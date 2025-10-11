@@ -90,9 +90,9 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="login-footer">
+        {/* <div className="login-footer">
           <p>مشرف افتراضي: اسم المستخدم: <code>admin</code>، كلمة المرور: <code>admin123</code></p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

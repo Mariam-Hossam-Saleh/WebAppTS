@@ -662,6 +662,27 @@ body {
   background: #fecaca;
 }
 
+/* User Management Specific */
+.user-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.password-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6b7280;
+  margin-right: 0.5rem;
+}
+
+.password-toggle:hover {
+  color: #374151;
+}
+
 .no-data {
   text-align: center;
   padding: 3rem;
@@ -947,7 +968,8 @@ body {
 
 /* Account and Employee Management */
 .account-manager,
-.employee-manager {
+.employee-manager,
+.project-manager {
   width: 100%;
   max-width: 1200px;
 }
@@ -961,20 +983,26 @@ body {
 }
 
 .accounts-table-container,
-.employees-table-container {
+.employees-table-container,
+.projects-table-container,
+.users-table-container {
   overflow-x: auto;
   padding: 1.5rem;
 }
 
 .accounts-table,
-.employees-table {
+.employees-table,
+.projects-table,
+.users-table {
   width: 100%;
   border-collapse: collapse;
   direction: rtl;
 }
 
 .accounts-table th,
-.employees-table th {
+.employees-table th,
+.projects-table th,
+.users-table th {
   background: #f8fafc;
   padding: 1rem;
   text-align: right;
@@ -985,24 +1013,30 @@ body {
 }
 
 .accounts-table td,
-.employees-table td {
+.employees-table td,
+.projects-table td,
+.users-table td {
   padding: 1rem;
   border-bottom: 1px solid #f1f5f9;
   text-align: right;
 }
 
 .accounts-table tr:hover,
-.employees-table tr:hover {
+.employees-table tr:hover,
+.projects-table tr:hover,
+.users-table tr:hover {
   background: #fafbfc;
 }
 
 .account-form,
-.employee-form {
+.employee-form,
+.project-form {
   padding: 2rem;
 }
 
 .account-form h3,
-.employee-form h3 {
+.employee-form h3,
+.project-form h3 {
   color: #1e293b;
   margin-bottom: 1.5rem;
   font-size: 1.25rem;

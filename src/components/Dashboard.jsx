@@ -6,6 +6,7 @@ import UserSwitcher from './UserSwitcher';
 import UserManager from './UserManager';
 import AccountManager from './AccountManager';
 import EmployeeManager from './EmployeeManager';
+import ProjectManager from './ProjectManager';
 import { 
   LogOut, 
   Plus, 
@@ -15,7 +16,8 @@ import {
   Settings,
   User,
   FileText,
-  UserCog
+  UserCog,
+  Building
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -29,6 +31,7 @@ const Dashboard = () => {
   const [showUserManager, setShowUserManager] = useState(false);
   const [showAccountManager, setShowAccountManager] = useState(false);
   const [showEmployeeManager, setShowEmployeeManager] = useState(false);
+  const [showProjectManager, setShowProjectManager] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -126,6 +129,15 @@ const Dashboard = () => {
               >
                 <UserCog />
                 إدارة الموظفين
+              </button>
+
+              <button 
+                className="header-btn"
+                onClick={() => setShowProjectManager(true)}
+                title="إدارة المشاريع"
+              >
+                <Building />
+                إدارة المشاريع
               </button>
 
               <button 
@@ -239,6 +251,20 @@ const Dashboard = () => {
               <EmployeeManager 
                 onClose={() => {
                   setShowEmployeeManager(false);
+                  setRefreshTrigger(prev => prev + 1);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Project Manager Modal */}
+        {showProjectManager && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <ProjectManager 
+                onClose={() => {
+                  setShowProjectManager(false);
                   setRefreshTrigger(prev => prev + 1);
                 }}
               />

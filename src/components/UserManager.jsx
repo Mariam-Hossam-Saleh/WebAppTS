@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Users, Plus, User, X, Shield, UserX } from 'lucide-react';
+import { Users, Plus, User, X, Shield, UserX, Edit, Trash2, Save, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
 const UserManager = ({ onClose }) => {
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -13,6 +14,7 @@ const UserManager = ({ onClose }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { registerUser } = useAuth();
 
@@ -35,17 +37,30 @@ const UserManager = ({ onClose }) => {
     setError('');
     setLoading(true);
 
-    const result = await registerUser(formData);
-    
-    if (result.success) {
+    try {
+      if (editingUser) {
+        // Update existing user
+        await axios.patch(`/api/users/${editingUser._id}`, formData);
+      } else {
+        // Create new user
+        const result = await registerUser(formData);
+        if (!result.success) {
+          setError(result.message);
+          setLoading(false);
+          return;
+        }
+      }
+      
       setFormData({ username: '', password: '', role: 'Accountant' });
       setShowForm(false);
+      setEditingUser(null);
       loadUsers();
-    } else {
-      setError(result.message);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      setError(error.response?.data?.message || 'فشل حفظ المستخدم');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -63,12 +78,44 @@ const UserManager = ({ onClose }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setFormData({
+      username: user.username,
+      password: '', // Don't pre-fill password for security
+      role: user.role
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (userId, username) => {
+    if (!window.confirm(`هل أنت متأكد من حذف المستخدم "${username}"؟`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/users/${userId}`);
+      loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setError('فشل حذف المستخدم');
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingUser(null);
+    setFormData({ username: '', password: '', role: 'Accountant' });
+    setError('');
+    setShowPassword(false);
+  };
+
   return (
     <div className="user-manager">
       <div className="modal-header">
         <div className="modal-title">
           <Users className="title-icon" />
-          <h2>User Management</h2>
+          <h2>إدارة المستخدمين</h2>
         </div>
         <button className="close-btn" onClick={onClose}>
           <X />
@@ -84,15 +131,15 @@ const UserManager = ({ onClose }) => {
               onClick={() => setShowForm(true)}
             >
               <Plus />
-              Add New User
+              إضافة مستخدم جديد
             </button>
           ) : (
             <form onSubmit={handleSubmit} className="add-user-form">
-              <h3>Create New User</h3>
+              <h3>{editingUser ? 'تعديل المستخدم' : 'إضافة مستخدم جديد'}</h3>
               
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="new-username">Username</label>
+                  <label htmlFor="new-username">اسم المستخدم</label>
                   <input
                     type="text"
                     id="new-username"
@@ -100,26 +147,35 @@ const UserManager = ({ onClose }) => {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    placeholder="Enter username"
+                    placeholder="أدخل اسم المستخدم"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="new-password">Password</label>
+                  <label htmlFor="new-password">
+                    كلمة المرور {editingUser && '(اتركها فارغة للاحتفاظ بالحالية)'}
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </button>
+                  </label>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="new-password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
-                    placeholder="Enter password"
+                    required={!editingUser}
+                    placeholder={editingUser ? "أدخل كلمة مرور جديدة (اختياري)" : "أدخل كلمة المرور"}
                     minLength="6"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="new-role">Role</label>
+                  <label htmlFor="new-role">الدور</label>
                   <select
                     id="new-role"
                     name="role"
@@ -127,8 +183,8 @@ const UserManager = ({ onClose }) => {
                     onChange={handleChange}
                     required
                   >
-                    <option value="Accountant">Accountant</option>
-                    <option value="Admin">Admin</option>
+                    <option value="Accountant">محاسب</option>
+                    <option value="Admin">مدير</option>
                   </select>
                 </div>
               </div>
@@ -143,16 +199,12 @@ const UserManager = ({ onClose }) => {
                 <button 
                   type="button" 
                   className="btn-secondary"
-                  onClick={() => {
-                    setShowForm(false);
-                    setError('');
-                    setFormData({ username: '', password: '', role: 'Accountant' });
-                  }}
+                  onClick={handleCancel}
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create User'}
+                  {loading ? (editingUser ? 'جاري التحديث...' : 'جاري الإنشاء...') : (editingUser ? 'تحديث المستخدم' : 'إنشاء مستخدم')}
                 </button>
               </div>
             </form>
@@ -161,37 +213,59 @@ const UserManager = ({ onClose }) => {
 
         {/* Users List */}
         <div className="users-list">
-          <h3>Existing Users</h3>
+          <h3>المستخدمون الحاليون</h3>
           
           {users.length === 0 ? (
             <div className="no-users">
               <UserX className="no-users-icon" />
-              <p>No users found</p>
+              <p>لا يوجد مستخدمون</p>
             </div>
           ) : (
-            <div className="users-grid">
-              {users.map(user => (
-                <div key={user._id} className="user-card">
-                  <div className="user-info">
-                    <div className="user-header">
-                      {getRoleIcon(user.role)}
-                      <h4>{user.username}</h4>
-                    </div>
-                    <div className="user-details">
-                      <div className="detail-item">
-                        <span className="label">Role:</span>
+            <div className="users-table-container">
+              <table className="users-table">
+                <thead>
+                  <tr>
+                    <th>اسم المستخدم</th>
+                    <th>الدور</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr key={user._id}>
+                      <td>
+                        <div className="user-name">
+                          {getRoleIcon(user.role)}
+                          {user.username}
+                        </div>
+                      </td>
+                      <td>
                         <span className={`role-badge ${user.role.toLowerCase()}`}>
-                          {user.role}
+                          {user.role === 'Admin' ? 'مدير' : 'محاسب'}
                         </span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Created:</span>
-                        <span>{formatDate(user.createdAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td>{formatDate(user.createdAt)}</td>
+                      <td className="actions">
+                        <button 
+                          className="edit-btn" 
+                          onClick={() => handleEdit(user)}
+                          title="تعديل المستخدم"
+                        >
+                          <Edit />
+                        </button>
+                        <button 
+                          className="delete-btn" 
+                          onClick={() => handleDelete(user._id, user.username)}
+                          title="حذف المستخدم"
+                        >
+                          <Trash2 />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
