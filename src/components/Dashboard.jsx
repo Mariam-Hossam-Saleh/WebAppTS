@@ -4,6 +4,8 @@ import AccountingForm from './AccountingForm';
 import DataGrid from './DataGrid';
 import UserSwitcher from './UserSwitcher';
 import UserManager from './UserManager';
+import AccountManager from './AccountManager';
+import EmployeeManager from './EmployeeManager';
 import { 
   LogOut, 
   Plus, 
@@ -11,7 +13,9 @@ import {
   Users, 
   BarChart3,
   Settings,
-  User
+  User,
+  FileText,
+  UserCog
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -23,6 +27,8 @@ const Dashboard = () => {
   const [editingRecord, setEditingRecord] = useState(null);
   const [showUserSwitcher, setShowUserSwitcher] = useState(false);
   const [showUserManager, setShowUserManager] = useState(false);
+  const [showAccountManager, setShowAccountManager] = useState(false);
+  const [showEmployeeManager, setShowEmployeeManager] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -103,14 +109,34 @@ const Dashboard = () => {
           </button>
           
           {user.role === 'Admin' && (
-            <button 
-              className="header-btn"
-              onClick={() => setShowUserManager(true)}
-              title="إدارة المستخدمين"
-            >
-              <Settings />
-              إدارة المستخدمين
-            </button>
+            <>
+              <button 
+                className="header-btn"
+                onClick={() => setShowAccountManager(true)}
+                title="إدارة الحسابات"
+              >
+                <FileText />
+                إدارة الحسابات
+              </button>
+
+              <button 
+                className="header-btn"
+                onClick={() => setShowEmployeeManager(true)}
+                title="إدارة الموظفين"
+              >
+                <UserCog />
+                إدارة الموظفين
+              </button>
+
+              <button 
+                className="header-btn"
+                onClick={() => setShowUserManager(true)}
+                title="إدارة المستخدمين"
+              >
+                <Settings />
+                إدارة المستخدمين
+              </button>
+            </>
           )}
           
           <button 
@@ -187,6 +213,34 @@ const Dashboard = () => {
             <div className="modal-content">
               <UserManager 
                 onClose={() => setShowUserManager(false)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Account Manager Modal */}
+        {showAccountManager && (
+          <div className="modal-overlay">
+            <div className="modal-content modal-large">
+              <AccountManager 
+                onClose={() => {
+                  setShowAccountManager(false);
+                  setRefreshTrigger(prev => prev + 1);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Employee Manager Modal */}
+        {showEmployeeManager && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <EmployeeManager 
+                onClose={() => {
+                  setShowEmployeeManager(false);
+                  setRefreshTrigger(prev => prev + 1);
+                }}
               />
             </div>
           </div>

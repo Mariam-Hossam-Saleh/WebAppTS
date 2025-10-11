@@ -4,38 +4,46 @@ import axios from 'axios';
 
 const AccountingForm = ({ record, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    fs: '',
-    accountType: '',
-    subAccount: '',
     date: new Date().toISOString().split('T')[0],
-    accountName: '',
-    projectsUnderConstruction: '',
-    previousProjects: '',
-    item: '',
-    quantity: '',
+    expenseFrom: '',
+    paidTo: '',
+    description: '',
     price: '',
-    brand: '',
-    type: '',
-    part: '',
-    day: new Date().getDate(),
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-    notes: ''
+    employeeName: ''
   });
 
+  const [accounts, setAccounts] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    loadDropdownData();
     if (record) {
-      // Populate form with record data for editing
-      const recordData = { ...record };
-      if (recordData.date) {
-        recordData.date = new Date(recordData.date).toISOString().split('T')[0];
-      }
-      setFormData(recordData);
+      setFormData({
+        date: record.date ? new Date(record.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        expenseFrom: record.expenseFrom || '',
+        paidTo: record.paidTo || '',
+        description: record.description || '',
+        price: record.price || '',
+        employeeName: record.employeeName || ''
+      });
     }
   }, [record]);
+
+  const loadDropdownData = async () => {
+    try {
+      const [accountsRes, employeesRes] = await Promise.all([
+        axios.get('/api/accounts'),
+        axios.get('/api/employees')
+      ]);
+      setAccounts(accountsRes.data);
+      setEmployees(employeesRes.data);
+    } catch (error) {
+      console.error('Error loading dropdown data:', error);
+      setError('فشل تحميل البيانات');
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,17 +51,6 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
       ...prev,
       [name]: value
     }));
-
-    // Auto-populate day, month, year when date changes
-    if (name === 'date' && value) {
-      const dateObj = new Date(value);
-      setFormData(prev => ({
-        ...prev,
-        day: dateObj.getDate(),
-        month: dateObj.getMonth() + 1,
-        year: dateObj.getFullYear()
-      }));
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -63,34 +60,31 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
 
     try {
       // Validate required fields
-      if (!formData.accountName || !formData.item || !formData.quantity || !formData.price) {
-        setError('Please fill in all required fields');
+      if (!formData.date || !formData.expenseFrom || !formData.paidTo || !formData.description || !formData.price || !formData.employeeName) {
+        setError('يرجى ملء جميع الحقول المطلوبة');
         setLoading(false);
         return;
       }
 
-      // Convert quantity and price to numbers
       const submitData = {
-        ...formData,
-        quantity: parseFloat(formData.quantity),
+        date: formData.date,
+        expenseFrom: formData.expenseFrom,
+        paidTo: formData.paidTo,
+        description: formData.description,
         price: parseFloat(formData.price),
-        day: parseInt(formData.day),
-        month: parseInt(formData.month),
-        year: parseInt(formData.year)
+        employeeName: formData.employeeName
       };
 
       if (record) {
-        // Update existing record
         await axios.patch(`/api/records/${record._id}`, submitData);
       } else {
-        // Create new record
         await axios.post('/api/records', submitData);
       }
 
       onSave();
     } catch (error) {
       console.error('Error saving record:', error);
-      setError(error.response?.data?.message || 'Failed to save record');
+      setError(error.response?.data?.message || 'فشل حفظ السجل');
     } finally {
       setLoading(false);
     }
@@ -113,47 +107,6 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
         )}
 
         <div className="form-grid">
-          {/* Row 1 */}
-          <div className="form-group">
-            <label htmlFor="fs">القوائم المالية</label>
-            <input
-              type="text"
-              id="fs"
-              name="fs"
-              value={formData.fs}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="accountType">نوع الحساب</label>
-            <select
-              id="accountType"
-              name="accountType"
-              value={formData.accountType}
-              onChange={handleChange}
-            >
-              <option value="">اختر النوع</option>
-              <option value="Asset">أصول</option>
-              <option value="Liability">خصوم</option>
-              <option value="Equity">حقوق الملكية</option>
-              <option value="Revenue">إيرادات</option>
-              <option value="Expense">مصروفات</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="subAccount">الحساب الفرعي</label>
-            <input
-              type="text"
-              id="subAccount"
-              name="subAccount"
-              value={formData.subAccount}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Row 2 */}
           <div className="form-group">
             <label htmlFor="date">التاريخ *</label>
             <input
@@ -167,69 +120,56 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="accountName">اسم الحساب *</label>
-            <input
-              type="text"
-              id="accountName"
-              name="accountName"
-              value={formData.accountName}
+            <label htmlFor="expenseFrom">مصروف من *</label>
+            <select
+              id="expenseFrom"
+              name="expenseFrom"
+              value={formData.expenseFrom}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">اختر الحساب</option>
+              {accounts.map(account => (
+                <option key={account._id} value={account.accountName}>
+                  {account.accountName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="projectsUnderConstruction">مشاريع تحت الإنشاء</label>
-            <input
-              type="text"
-              id="projectsUnderConstruction"
-              name="projectsUnderConstruction"
-              value={formData.projectsUnderConstruction}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Row 3 */}
-          <div className="form-group">
-            <label htmlFor="previousProjects">Previous Projects</label>
-            <input
-              type="text"
-              id="previousProjects"
-              name="previousProjects"
-              value={formData.previousProjects}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="item">Item *</label>
-            <input
-              type="text"
-              id="item"
-              name="item"
-              value={formData.item}
+            <label htmlFor="paidTo">مدفوع إلى *</label>
+            <select
+              id="paidTo"
+              name="paidTo"
+              value={formData.paidTo}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">اختر الحساب</option>
+              {accounts.map(account => (
+                <option key={account._id} value={account.accountName}>
+                  {account.accountName}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="quantity">Quantity *</label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
+          <div className="form-group full-width">
+            <label htmlFor="description">الوصف *</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              min="0"
-              step="0.01"
               required
+              rows="3"
+              placeholder="أدخل وصف المصروف..."
             />
           </div>
 
-          {/* Row 4 */}
           <div className="form-group">
-            <label htmlFor="price">Price *</label>
+            <label htmlFor="price">المبلغ *</label>
             <input
               type="number"
               id="price"
@@ -239,93 +179,26 @@ const AccountingForm = ({ record, onSave, onCancel }) => {
               min="0"
               step="0.01"
               required
+              placeholder="0.00"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="brand">Brand</label>
-            <input
-              type="text"
-              id="brand"
-              name="brand"
-              value={formData.brand}
+            <label htmlFor="employeeName">اسم الموظف *</label>
+            <select
+              id="employeeName"
+              name="employeeName"
+              value={formData.employeeName}
               onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="type">Type</label>
-            <input
-              type="text"
-              id="type"
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Row 5 */}
-          <div className="form-group">
-            <label htmlFor="part">Part</label>
-            <input
-              type="text"
-              id="part"
-              name="part"
-              value={formData.part}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="day">Day</label>
-            <input
-              type="number"
-              id="day"
-              name="day"
-              value={formData.day}
-              onChange={handleChange}
-              min="1"
-              max="31"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="month">Month</label>
-            <input
-              type="number"
-              id="month"
-              name="month"
-              value={formData.month}
-              onChange={handleChange}
-              min="1"
-              max="12"
-            />
-          </div>
-
-          {/* Row 6 */}
-          <div className="form-group">
-            <label htmlFor="year">Year</label>
-            <input
-              type="number"
-              id="year"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              min="2000"
-              max="2100"
-            />
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="notes">Notes</label>
-            <textarea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows="3"
-              placeholder="Additional notes or comments..."
-            />
+              required
+            >
+              <option value="">اختر الموظف</option>
+              {employees.map(employee => (
+                <option key={employee._id} value={employee.employee}>
+                  {employee.employee} - {employee.title}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

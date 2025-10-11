@@ -27,26 +27,61 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Accounting Record Schema (based on your requirements)
-const accountingSchema = new mongoose.Schema({
-  fs: String,
-  accountType: String,
+// Account Schema (Admin-controlled list)
+const accountSchema = new mongoose.Schema({
+  accountName: { type: String, required: true, unique: true },
+  accountCode: { type: String, required: true },
+  accountType: { type: String, required: true },
+  accountTypeCode: { type: String, required: true },
   subAccount: String,
+  subAccountCode: String,
+  financialStatement: String,
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+// Employee Schema (Admin-controlled list)
+const employeeSchema = new mongoose.Schema({
+  employee: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  code: { type: String, required: true, unique: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+// Simplified Accounting Record Schema
+const accountingSchema = new mongoose.Schema({
   date: { type: Date, required: true },
-  accountName: { type: String, required: true },
-  projectsUnderConstruction: String,
-  previousProjects: String,
-  editorName: { type: String, required: true },
-  item: { type: String, required: true },
-  quantity: { type: Number, required: true },
+  expenseFrom: { type: String, required: true }, // Account Name
+  expenseFromDetails: {
+    accountName: String,
+    accountCode: String,
+    accountType: String,
+    accountTypeCode: String,
+    subAccount: String,
+    subAccountCode: String,
+    financialStatement: String
+  },
+  paidTo: { type: String, required: true }, // Account Name
+  paidToDetails: {
+    accountName: String,
+    accountCode: String,
+    accountType: String,
+    accountTypeCode: String,
+    subAccount: String,
+    subAccountCode: String,
+    financialStatement: String
+  },
+  description: { type: String, required: true },
   price: { type: Number, required: true },
-  brand: String,
-  type: String,
-  part: String,
-  day: Number,
-  month: Number,
-  year: Number,
-  notes: String,
+  employeeName: { type: String, required: true },
+  employeeDetails: {
+    employee: String,
+    title: String,
+    code: String
+  },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   lastModifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now },
@@ -54,6 +89,8 @@ const accountingSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("User", userSchema);
+const Account = mongoose.model("Account", accountSchema);
+const Employee = mongoose.model("Employee", employeeSchema);
 const AccountingRecord = mongoose.model("AccountingRecord", accountingSchema);
 
 // Middleware for JWT verification
@@ -194,6 +231,116 @@ app.get("/api/auth/me", authenticateToken, (req, res) => {
 });
 
 // ACCOUNTING RECORDS ROUTES
+// Get all accounts (for dropdowns)
+app.get("/api/accounts", authenticateToken, async (req, res) => {
+  try {
+    const accounts = await Account.find().sort({ accountName: 1 });
+    res.json(accounts);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching accounts', error: error.message });
+  }
+});
+
+// Get all employees (for dropdowns)
+app.get("/api/employees", authenticateToken, async (req, res) => {
+  try {
+    const employees = await Employee.find().sort({ employee: 1 });
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching employees', error: error.message });
+  }
+});
+
+// ACCOUNT MANAGEMENT (Admin only)
+// Create account
+app.post("/api/accounts", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const account = new Account({
+      ...req.body,
+      createdBy: req.user._id
+    });
+    await account.save();
+    res.status(201).json(account);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating account', error: error.message });
+  }
+});
+
+// Update account
+app.patch("/api/accounts/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const account = await Account.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating account', error: error.message });
+  }
+});
+
+// Delete account
+app.delete("/api/accounts/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const account = await Account.findByIdAndDelete(req.params.id);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting account', error: error.message });
+  }
+});
+
+// EMPLOYEE MANAGEMENT (Admin only)
+// Create employee
+app.post("/api/employees", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const employee = new Employee({
+      ...req.body,
+      createdBy: req.user._id
+    });
+    await employee.save();
+    res.status(201).json(employee);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating employee', error: error.message });
+  }
+});
+
+// Update employee
+app.patch("/api/employees/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const employee = await Employee.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+    res.json(employee);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating employee', error: error.message });
+  }
+});
+
+// Delete employee
+app.delete("/api/employees/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const employee = await Employee.findByIdAndDelete(req.params.id);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+    res.json({ message: 'Employee deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting employee', error: error.message });
+  }
+});
+
 // Get all records
 app.get("/api/records", authenticateToken, async (req, res) => {
   try {
@@ -210,11 +357,51 @@ app.get("/api/records", authenticateToken, async (req, res) => {
 // Create new record
 app.post("/api/records", authenticateToken, async (req, res) => {
   try {
+    // Fetch account details for expenseFrom
+    const expenseFromAccount = await Account.findOne({ accountName: req.body.expenseFrom });
+    const paidToAccount = await Account.findOne({ accountName: req.body.paidTo });
+    const employee = await Employee.findOne({ employee: req.body.employeeName });
+
+    if (!expenseFromAccount || !paidToAccount) {
+      return res.status(400).json({ message: 'Invalid account selection' });
+    }
+
+    if (!employee) {
+      return res.status(400).json({ message: 'Invalid employee selection' });
+    }
+
     const recordData = {
-      ...req.body,
+      date: req.body.date,
+      expenseFrom: req.body.expenseFrom,
+      expenseFromDetails: {
+        accountName: expenseFromAccount.accountName,
+        accountCode: expenseFromAccount.accountCode,
+        accountType: expenseFromAccount.accountType,
+        accountTypeCode: expenseFromAccount.accountTypeCode,
+        subAccount: expenseFromAccount.subAccount,
+        subAccountCode: expenseFromAccount.subAccountCode,
+        financialStatement: expenseFromAccount.financialStatement
+      },
+      paidTo: req.body.paidTo,
+      paidToDetails: {
+        accountName: paidToAccount.accountName,
+        accountCode: paidToAccount.accountCode,
+        accountType: paidToAccount.accountType,
+        accountTypeCode: paidToAccount.accountTypeCode,
+        subAccount: paidToAccount.subAccount,
+        subAccountCode: paidToAccount.subAccountCode,
+        financialStatement: paidToAccount.financialStatement
+      },
+      description: req.body.description,
+      price: req.body.price,
+      employeeName: req.body.employeeName,
+      employeeDetails: {
+        employee: employee.employee,
+        title: employee.title,
+        code: employee.code
+      },
       createdBy: req.user._id,
-      lastModifiedBy: req.user._id,
-      editorName: req.user.username
+      lastModifiedBy: req.user._id
     };
 
     const record = new AccountingRecord(recordData);
@@ -233,14 +420,58 @@ app.post("/api/records", authenticateToken, async (req, res) => {
 // Update record
 app.patch("/api/records/:id", authenticateToken, async (req, res) => {
   try {
+    // Fetch updated account and employee details if changed
+    const updateData = {
+      ...req.body,
+      lastModifiedBy: req.user._id,
+      updatedAt: new Date()
+    };
+
+    // If accounts changed, update details
+    if (req.body.expenseFrom) {
+      const expenseFromAccount = await Account.findOne({ accountName: req.body.expenseFrom });
+      if (expenseFromAccount) {
+        updateData.expenseFromDetails = {
+          accountName: expenseFromAccount.accountName,
+          accountCode: expenseFromAccount.accountCode,
+          accountType: expenseFromAccount.accountType,
+          accountTypeCode: expenseFromAccount.accountTypeCode,
+          subAccount: expenseFromAccount.subAccount,
+          subAccountCode: expenseFromAccount.subAccountCode,
+          financialStatement: expenseFromAccount.financialStatement
+        };
+      }
+    }
+
+    if (req.body.paidTo) {
+      const paidToAccount = await Account.findOne({ accountName: req.body.paidTo });
+      if (paidToAccount) {
+        updateData.paidToDetails = {
+          accountName: paidToAccount.accountName,
+          accountCode: paidToAccount.accountCode,
+          accountType: paidToAccount.accountType,
+          accountTypeCode: paidToAccount.accountTypeCode,
+          subAccount: paidToAccount.subAccount,
+          subAccountCode: paidToAccount.subAccountCode,
+          financialStatement: paidToAccount.financialStatement
+        };
+      }
+    }
+
+    if (req.body.employeeName) {
+      const employee = await Employee.findOne({ employee: req.body.employeeName });
+      if (employee) {
+        updateData.employeeDetails = {
+          employee: employee.employee,
+          title: employee.title,
+          code: employee.code
+        };
+      }
+    }
+
     const record = await AccountingRecord.findByIdAndUpdate(
       req.params.id,
-      {
-        ...req.body,
-        lastModifiedBy: req.user._id,
-        editorName: req.user.username,
-        updatedAt: new Date()
-      },
+      updateData,
       { new: true }
     ).populate('createdBy', 'username').populate('lastModifiedBy', 'username');
 

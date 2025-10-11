@@ -20,12 +20,10 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
       if (!filterText) return true;
       const searchText = filterText.toLowerCase();
       return (
-        record.accountName?.toLowerCase().includes(searchText) ||
-        record.item?.toLowerCase().includes(searchText) ||
-        record.brand?.toLowerCase().includes(searchText) ||
-        record.type?.toLowerCase().includes(searchText) ||
-        record.notes?.toLowerCase().includes(searchText) ||
-        record.editorName?.toLowerCase().includes(searchText)
+        record.expenseFrom?.toLowerCase().includes(searchText) ||
+        record.paidTo?.toLowerCase().includes(searchText) ||
+        record.description?.toLowerCase().includes(searchText) ||
+        record.employeeName?.toLowerCase().includes(searchText)
       );
     })
     .sort((a, b) => {
@@ -89,7 +87,7 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
             <DollarSign className="stat-icon" />
             <span>
               إجمالي القيمة: {formatCurrency(
-                filteredAndSortedRecords.reduce((sum, record) => sum + calculateTotal(record), 0)
+                filteredAndSortedRecords.reduce((sum, record) => sum + (record.price || 0), 0)
               )}
             </span>
           </div>
@@ -104,27 +102,20 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
                 <Calendar className="header-icon" />
                 التاريخ {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th onClick={() => handleSort('accountName')} className="sortable">
-                اسم الحساب {sortField === 'accountName' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('expenseFrom')} className="sortable">
+                مصروف من {sortField === 'expenseFrom' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th onClick={() => handleSort('item')} className="sortable">
-                البند {sortField === 'item' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('paidTo')} className="sortable">
+                مدفوع إلى {sortField === 'paidTo' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th onClick={() => handleSort('quantity')} className="sortable">
-                الكمية {sortField === 'quantity' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('description')} className="sortable">
+                الوصف {sortField === 'description' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th onClick={() => handleSort('price')} className="sortable">
-                السعر {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
+                المبلغ {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th>الإجمالي</th>
-              <th onClick={() => handleSort('brand')} className="sortable">
-                العلامة التجارية {sortField === 'brand' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th onClick={() => handleSort('type')} className="sortable">
-                النوع {sortField === 'type' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th onClick={() => handleSort('editorName')} className="sortable">
-                المحرر {sortField === 'editorName' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('employeeName')} className="sortable">
+                الموظف {sortField === 'employeeName' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th>الإجراءات</th>
             </tr>
@@ -140,19 +131,16 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
               filteredAndSortedRecords.map(record => (
                 <tr key={record._id} className="data-row">
                   <td>{formatDate(record.date)}</td>
-                  <td className="account-name">{record.accountName}</td>
-                  <td>{record.item}</td>
-                  <td className="number">{record.quantity}</td>
+                  <td className="account-name">{record.expenseFrom}</td>
+                  <td className="account-name">{record.paidTo}</td>
+                  <td>{record.description}</td>
                   <td className="number">{formatCurrency(record.price)}</td>
-                  <td className="number total">{formatCurrency(calculateTotal(record))}</td>
-                  <td>{record.brand}</td>
-                  <td>{record.type}</td>
-                  <td className="editor-name">{record.editorName}</td>
+                  <td className="editor-name">{record.employeeName}</td>
                   <td className="actions">
                     <button
                       className="action-btn edit-btn"
                       onClick={() => onEdit(record)}
-                      title="Edit Record"
+                      title="تعديل السجل"
                     >
                       <Edit />
                     </button>
@@ -160,7 +148,7 @@ const DataGrid = ({ records, loading, onEdit, onDelete, userRole }) => {
                       <button
                         className="action-btn delete-btn"
                         onClick={() => onDelete(record._id)}
-                        title="Delete Record"
+                        title="حذف السجل"
                       >
                         <Trash2 />
                       </button>
