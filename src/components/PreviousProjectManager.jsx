@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import axios from 'axios';
 
-const ProjectManager = ({ onClose }) => {
-  const [projects, setProjects] = useState([]);
+const PreviousProjectManager = ({ onClose }) => {
+  const [previousProjects, setPreviousProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData] = useState({
@@ -14,16 +14,16 @@ const ProjectManager = ({ onClose }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadProjects();
+    loadPreviousProjects();
   }, []);
 
-  const loadProjects = async () => {
+  const loadPreviousProjects = async () => {
     try {
-      const response = await axios.get('/api/projects');
-      setProjects(response.data);
+      const response = await axios.get('/api/previous-projects');
+      setPreviousProjects(response.data);
     } catch (error) {
-      console.error('Error loading projects:', error);
-      setError('فشل تحميل المشاريع');
+      console.error('Error loading previous projects:', error);
+      setError('فشل تحميل المشاريع السابقة');
     }
   };
 
@@ -41,16 +41,16 @@ const ProjectManager = ({ onClose }) => {
 
     try {
       if (editingProject) {
-        await axios.patch(`/api/projects/${editingProject._id}`, formData);
+        await axios.patch(`/api/previous-projects/${editingProject._id}`, formData);
       } else {
-        await axios.post('/api/projects', formData);
+        await axios.post('/api/previous-projects', formData);
       }
       setFormData({ projectName: '', code: '' });
       setShowForm(false);
       setEditingProject(null);
-      loadProjects();
+      loadPreviousProjects();
     } catch (error) {
-      console.error('Error saving project:', error);
+      console.error('Error saving previous project:', error);
       setError(error.response?.data?.message || 'فشل حفظ المشروع');
     } finally {
       setLoading(false);
@@ -70,10 +70,10 @@ const ProjectManager = ({ onClose }) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
 
     try {
-      await axios.delete(`/api/projects/${id}`);
-      loadProjects();
+      await axios.delete(`/api/previous-projects/${id}`);
+      loadPreviousProjects();
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error('Error deleting previous project:', error);
       setError('فشل حذف المشروع');
     }
   };
@@ -86,9 +86,9 @@ const ProjectManager = ({ onClose }) => {
   };
 
   return (
-    <div className="project-manager">
+    <div className="previous-project-manager">
       <div className="modal-header">
-        <h2>إدارة المشاريع جارى تنفيذها</h2>
+        <h2>إدارة المشاريع تم تنفيذها</h2>
         <button className="close-btn" onClick={onClose}>
           <X />
         </button>
@@ -100,12 +100,12 @@ const ProjectManager = ({ onClose }) => {
             <div className="manager-header">
               <button className="btn-primary" onClick={() => setShowForm(true)}>
                 <Plus />
-                إضافة مشروع جديد
+                إضافة مشروع سابق
               </button>
             </div>
 
-            <div className="projects-table-container">
-              <table className="projects-table">
+            <div className="previous-projects-table-container">
+              <table className="previous-projects-table">
                 <thead>
                   <tr>
                     <th>اسم المشروع</th>
@@ -115,7 +115,7 @@ const ProjectManager = ({ onClose }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map(project => (
+                  {previousProjects.map(project => (
                     <tr key={project._id}>
                       <td>{project.projectName}</td>
                       <td>{project.code}</td>
@@ -135,8 +135,8 @@ const ProjectManager = ({ onClose }) => {
             </div>
           </>
         ) : (
-          <form onSubmit={handleSubmit} className="project-form">
-            <h3>{editingProject ? 'تعديل المشروع' : 'إضافة مشروع جديد'}</h3>
+          <form onSubmit={handleSubmit} className="previous-project-form">
+            <h3>{editingProject ? 'تعديل المشروع' : 'إضافة مشروع سابق'}</h3>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -182,4 +182,4 @@ const ProjectManager = ({ onClose }) => {
   );
 };
 
-export default ProjectManager;
+export default PreviousProjectManager;

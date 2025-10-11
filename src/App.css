@@ -969,7 +969,8 @@ body {
 /* Account and Employee Management */
 .account-manager,
 .employee-manager,
-.project-manager {
+.project-manager,
+.previous-project-manager {
   width: 100%;
   max-width: 1200px;
 }
@@ -985,6 +986,7 @@ body {
 .accounts-table-container,
 .employees-table-container,
 .projects-table-container,
+.previous-projects-table-container,
 .users-table-container {
   overflow-x: auto;
   padding: 1.5rem;
@@ -993,6 +995,7 @@ body {
 .accounts-table,
 .employees-table,
 .projects-table,
+.previous-projects-table,
 .users-table {
   width: 100%;
   border-collapse: collapse;
@@ -1002,6 +1005,7 @@ body {
 .accounts-table th,
 .employees-table th,
 .projects-table th,
+.previous-projects-table th,
 .users-table th {
   background: #f8fafc;
   padding: 1rem;
@@ -1015,6 +1019,7 @@ body {
 .accounts-table td,
 .employees-table td,
 .projects-table td,
+.previous-projects-table td,
 .users-table td {
   padding: 1rem;
   border-bottom: 1px solid #f1f5f9;
@@ -1024,19 +1029,22 @@ body {
 .accounts-table tr:hover,
 .employees-table tr:hover,
 .projects-table tr:hover,
+.previous-projects-table tr:hover,
 .users-table tr:hover {
   background: #fafbfc;
 }
 
 .account-form,
 .employee-form,
-.project-form {
+.project-form,
+.previous-project-form {
   padding: 2rem;
 }
 
 .account-form h3,
 .employee-form h3,
-.project-form h3 {
+.project-form h3,
+.previous-project-form h3 {
   color: #1e293b;
   margin-bottom: 1.5rem;
   font-size: 1.25rem;

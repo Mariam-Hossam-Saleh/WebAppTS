@@ -60,6 +60,15 @@ const projectSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Previous Projects Schema (Admin-controlled list)
+const previousProjectSchema = new mongoose.Schema({
+  projectName: { type: String, required: true, unique: true },
+  code: { type: String, required: true, unique: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Simplified Accounting Record Schema
 const accountingSchema = new mongoose.Schema({
   date: { type: Date, required: true },
@@ -101,6 +110,7 @@ const User = mongoose.model("User", userSchema);
 const Account = mongoose.model("Account", accountSchema);
 const Employee = mongoose.model("Employee", employeeSchema);
 const Project = mongoose.model("Project", projectSchema);
+const PreviousProject = mongoose.model("PreviousProject", previousProjectSchema);
 const AccountingRecord = mongoose.model("AccountingRecord", accountingSchema);
 
 // Middleware for JWT verification
@@ -271,6 +281,16 @@ app.get("/api/projects", authenticateToken, async (req, res) => {
   }
 });
 
+// Get all previous projects (for dropdowns)
+app.get("/api/previous-projects", authenticateToken, async (req, res) => {
+  try {
+    const previousProjects = await PreviousProject.find().sort({ projectName: 1 });
+    res.json(previousProjects);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching previous projects', error: error.message });
+  }
+});
+
 // ACCOUNT MANAGEMENT (Admin only)
 // Create account
 app.post("/api/accounts", authenticateToken, requireRole(['Admin']), async (req, res) => {
@@ -403,6 +423,51 @@ app.delete("/api/projects/:id", authenticateToken, requireRole(['Admin']), async
     res.json({ message: 'Project deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting project', error: error.message });
+  }
+});
+
+// PREVIOUS PROJECT MANAGEMENT (Admin only)
+// Create previous project
+app.post("/api/previous-projects", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const previousProject = new PreviousProject({
+      ...req.body,
+      createdBy: req.user._id
+    });
+    await previousProject.save();
+    res.status(201).json(previousProject);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating previous project', error: error.message });
+  }
+});
+
+// Update previous project
+app.patch("/api/previous-projects/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const previousProject = await PreviousProject.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!previousProject) {
+      return res.status(404).json({ message: 'Previous project not found' });
+    }
+    res.json(previousProject);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating previous project', error: error.message });
+  }
+});
+
+// Delete previous project
+app.delete("/api/previous-projects/:id", authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const previousProject = await PreviousProject.findByIdAndDelete(req.params.id);
+    if (!previousProject) {
+      return res.status(404).json({ message: 'Previous project not found' });
+    }
+    res.json({ message: 'Previous project deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting previous project', error: error.message });
   }
 });
 

@@ -7,6 +7,7 @@ import UserManager from './UserManager';
 import AccountManager from './AccountManager';
 import EmployeeManager from './EmployeeManager';
 import ProjectManager from './ProjectManager';
+import PreviousProjectManager from './PreviousProjectManager';
 import { 
   LogOut, 
   Plus, 
@@ -17,7 +18,8 @@ import {
   User,
   FileText,
   UserCog,
-  Building
+  Building,
+  FolderArchive
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -32,6 +34,7 @@ const Dashboard = () => {
   const [showAccountManager, setShowAccountManager] = useState(false);
   const [showEmployeeManager, setShowEmployeeManager] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
+  const [showPreviousProjectManager, setShowPreviousProjectManager] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -134,10 +137,19 @@ const Dashboard = () => {
               <button 
                 className="header-btn"
                 onClick={() => setShowProjectManager(true)}
-                title="إدارة المشاريع"
+                title="إدارة المشاريع تحت الإنشاء"
               >
                 <Building />
-                إدارة المشاريع
+                المشاريع تحت الإنشاء
+              </button>
+
+              <button 
+                className="header-btn"
+                onClick={() => setShowPreviousProjectManager(true)}
+                title="إدارة المشاريع السابقة"
+              >
+                <FolderArchive />
+                المشاريع السابقة
               </button>
 
               <button 
@@ -265,6 +277,20 @@ const Dashboard = () => {
               <ProjectManager 
                 onClose={() => {
                   setShowProjectManager(false);
+                  setRefreshTrigger(prev => prev + 1);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Previous Project Manager Modal */}
+        {showPreviousProjectManager && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <PreviousProjectManager 
+                onClose={() => {
+                  setShowPreviousProjectManager(false);
                   setRefreshTrigger(prev => prev + 1);
                 }}
               />
